@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Live Kokoro TTS</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="logo-icon">🔊</div>
+        <div>
+          <h1>YouTube Live TTS</h1>
+          <p class="subtitle">Super-lightweight local speech powered by Kokoro-82M (Rust native)</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <span id="connectionBadge" class="badge badge-disconnected">Disconnected</span>
+        <button id="toggleBotBtn" class="btn btn-primary" onclick="toggleBot()">Start Bot</button>
+      </div>
+    </header>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Bot Status</span>
+        <span id="statStatus" class="stat-value">Idle</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Queue Length</span>
+        <span id="statQueue" class="stat-value">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Messages Read</span>
+        <span id="statRead" class="stat-value">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Hardware Device</span>
+        <span id="statBackend" class="stat-value highlight">CPU</span>
+      </div>
+    </div>
+
+    <main class="dashboard-grid">
+      <!-- Left Column: Controls & Configuration -->
+      <section class="card config-card">
+        <h2>Settings & Configuration</h2>
+
+        <form id="configForm" onsubmit="saveConfig(event)">
+          <div class="form-group">
+            <label for="videoId">YouTube Stream URL or Video ID</label>
+            <input type="text" id="videoId" placeholder="e.g. https://www.youtube.com/watch?v=... or live ID" required>
+            <small>Supports full YouTube URL or 11-character video ID</small>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="deviceId">Compute Hardware Acceleration</label>
+              <select id="deviceId">
+                <option value="auto">Auto (Best Available)</option>
+                <option value="coreml">Apple Silicon Neural Engine / MPU (CoreML)</option>
+                <option value="cuda">NVIDIA GPU (CUDA)</option>
+                <option value="amd">AMD GPU (DirectML / ROCm)</option>
+                <option value="cpu">CPU (Multi-threaded SIMD)</option>
+              </select>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="voiceId">Kokoro Voice</label>
+              <select id="voiceId">
+                <option value="af_bella">Bella (American Female)</option>
+                <option value="af_sarah">Sarah (American Female)</option>
+                <option value="af_heart">Heart (Warm Female)</option>
+                <option value="af_nicole">Nicole (Whisper/Soft Female)</option>
+                <option value="af_sky">Sky (Clear Female)</option>
+                <option value="am_adam">Adam (American Male)</option>
+                <option value="am_michael">Michael (Deep Male)</option>
+                <option value="am_eric">Eric (American Male)</option>
+                <option value="am_echo">Echo (Neutral Male)</option>
+                <option value="bf_emma">Emma (British Female)</option>
+                <option value="bf_isabella">Isabella (British Female)</option>
+                <option value="bm_george">George (British Male)</option>
+                <option value="bm_lewis">Lewis (British Male)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="ttsPrefix">TTS Trigger Prefix</label>
+            <input type="text" id="ttsPrefix" placeholder="Leave empty for all messages, or '!tts'">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="speedRange">Voice Speed (<span id="speedVal">1.0</span>x)</label>
+              <input type="range" id="speedRange" min="0.5" max="2.0" step="0.05" value="1.0" oninput="document.getElementById('speedVal').textContent = this.value">
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="volumeRange">Playback Volume (<span id="volVal">100</span>%)</label>
+              <input type="range" id="volumeRange" min="0" max="100" step="5" value="100" oninput="document.getElementById('volVal').textContent = this.value">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="cooldown">User Cooldown (seconds)</label>
+              <input type="number" id="cooldown" min="0" max="300" value="10">
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="maxLength">Max Message Characters</label>
+              <input type="number" id="maxLength" min="10" max="500" value="150">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="ttsTemplate">Speech Format Template</label>
+            <input type="text" id="ttsTemplate" value="{author} says: {message}">
+            <small>Available tokens: <code>{author}</code> and <code>{message}</code></small>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-secondary">Save Configuration</button>
+            <button type="button" class="btn btn-outline" onclick="testVoice()">🔊 Test Voice</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Right Column: Live Stream Chat History -->
+      <section class="card history-card">
+        <div class="history-header">
+          <h2>Live Stream Chat</h2>
+          <span class="live-indicator"><span class="dot"></span> Live Feed</span>
+        </div>
+        <div id="chatHistory" class="chat-list">
+          <div class="empty-state">Start the bot and connect to a YouTube stream to see incoming messages.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

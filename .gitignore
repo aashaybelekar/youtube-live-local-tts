@@ -1,16 +1,15 @@
-# Virtual environment
-venv/
-.venv/
-env/
+# Rust build target
+/target
+Cargo.lock
 
-# Python cache
-__pycache__/
-*.py[cod]
+# Cache & models
+models/
+*.onnx
+*.bin
 
 # OS files
 .DS_Store
 Thumbs.db
 
-# Local config
-backend/config.py
+# Local env
 .env
